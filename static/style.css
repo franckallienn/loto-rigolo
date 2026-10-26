@@ -1,201 +1,260 @@
-/* ==========================================================================
-   VARIABLES GLOBALES ET THÈME SOMBRE
-   ========================================================================== */
 :root {
-    /* Couleurs de fond */
-    --bg-main: #0b0c10;          /* Sombre très profond, presque noir */
-    --bg-panel: #1f2833;         /* Gris bleuté sombre pour les cartes */
-    --card-bg: rgba(31, 40, 51, 0.6); /* Fond de carte transparent pour effet verre */
-    
-    /* Couleurs de texte */
-    --text-color: #f5f7fa;       /* Blanc cassé lumineux */
-    --text-muted: #c5a059;       /* Doré discret pour les textes secondaires */
-    
-    /* Accents et Signaux */
-    --hot-color: #ff3344;        /* Rouge néon vibrant */
-    --cold-color: #33a6ff;       /* Bleu électrique */
-    --success-color: #00ff88;    /* Vert néon pour l'équilibre */
-    --chance-gradient: linear-gradient(135deg, #f5b400, #ffea00);
+    --bg-color: #0b0c10;
+    --card-bg: rgba(31, 40, 51, 0.6);
+    --text-color: #f5f7fa;
+    --text-muted: #c5a059;
+    --hot-color: #ff3344;
+    --cold-color: #33a6ff;
+    --chance-color: #f5b400;
+    --boule-bg: #111;
+    --boule-border: #333;
+    --input-bg: #222;
+    --input-border: #444;
 }
 
-/* Base et réinitialisation */
+/* --- MODE CLAIR --- */
+.light-mode {
+    --bg-color: #f0f2f5;
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --text-color: #1a1a1a;
+    --text-muted: #666666;
+    --boule-bg: #ffffff;
+    --boule-border: #ccc;
+    --input-bg: #ffffff;
+    --input-border: #ccc;
+}
+
 body {
-    background-color: var(--bg-main);
+    background-color: var(--bg-color);
     color: var(--text-color);
-    /* Testez la police 'Inter' ou 'Poppins' si installées, sinon 'Segoe UI' prend le relais */
-    font-family: 'Inter', 'Poppins', 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Poppins', 'Inter', 'Segoe UI', sans-serif;
     margin: 0;
     padding: 20px;
-    line-height: 1.6;
-    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Transition douce */
 }
 
-/* ==========================================================================
-   SECTION GÉNÉRATEUR DE GRILLES
-   ========================================================================== */
-.generator-section {
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
     text-align: center;
-    margin: 40px 0 60px 0;
-    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-bottom: 40px;
 }
 
-/* Le Bouton Moderne avec dégradé et lueur néon */
-.btn-generer {
-    display: inline-block;
-    padding: 16px 45px;
-    background: linear-gradient(90deg, var(--hot-color), var(--cold-color));
-    color: white;
-    text-decoration: none;
-    border-radius: 50px;
-    font-size: 1.25rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    border: none;
-    outline: none;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 0 20px rgba(255, 51, 68, 0.2), 0 0 40px rgba(51, 166, 255, 0.2);
-}
-
-.btn-generer:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 0 30px rgba(255, 51, 68, 0.4), 0 0 60px rgba(51, 166, 255, 0.4);
-    letter-spacing: 1px;
-}
-
-.btn-generer:active {
-    transform: translateY(-1px) scale(0.99);
-}
-
-/* Grille de cartes */
-.grilles-container {
-    display: flex;
-    justify-content: center;
-    gap: 25px;
-    margin-top: 45px;
-    flex-wrap: wrap;
-    animation: fadeInUp 1.1s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Cartes au look "Glassmorphism" (effet verre trempé) */
-.grille-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    padding: 30px 25px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-    flex: 1;
-    min-width: 260px;
-    max-width: 340px;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.grille-card:hover {
-    transform: translateY(-8px) scale(1.01);
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 20px 45px rgba(0,0,0,0.7);
-}
-
-/* Titres des cartes */
-.grille-card h3 {
-    text-align: center;
-    margin: 0 0 25px 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.grille-card.chaude h3 { 
-    color: var(--hot-color);
-    text-shadow: 0 0 10px rgba(255, 51, 68, 0.3);
-}
-.grille-card.froide h3 { 
-    color: var(--cold-color);
-    text-shadow: 0 0 10px rgba(51, 166, 255, 0.3);
-}
-.grille-card.equilibree h3 { 
-    color: var(--success-color);
-    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-}
-
-/* Conteneur des boules */
-.grille-boules {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 25px;
-}
-
-/* Les Boules de Loto */
-.boule {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.15rem;
+header h1 {
+    font-size: 2.8rem;
     font-weight: 800;
-    background: radial-gradient(circle at 30% 30%, #2a2a2a 0%, #111111 80%);
-    color: var(--text-color);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    box-shadow: inset -2px -2px 6px rgba(0,0,0,0.6), 0 4px 10px rgba(0,0,0,0.5);
-    transition: all 0.3s ease;
+    background: linear-gradient(45deg, #ff3344, #f5b400);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
 }
 
-/* Bordures colorées de l'état de la boule au survol de la carte */
-.grille-card.chaude:hover .boule { border-color: var(--hot-color); box-shadow: 0 0 12px rgba(255, 51, 68, 0.2); }
-.grille-card.froide:hover .boule { border-color: var(--cold-color); box-shadow: 0 0 12px rgba(51, 166, 255, 0.2); }
-.grille-card.equilibree:hover .boule { border-color: var(--success-color); box-shadow: 0 0 12px rgba(0, 255, 136, 0.2); }
-
-/* Zone du numéro Chance */
-.grille-chance {
-    text-align: center;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-}
-
-.grille-chance .label {
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    display: block;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-weight: 600;
-}
-
-/* La Boule Chance Dorée */
-.boule-chance {
+.sync-container {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    font-size: 1.15rem;
-    font-weight: 800;
-    background: radial-gradient(circle at 30% 30%, #ffe600 0%, #b88600 80%);
-    color: #0b0c10;
-    border: 2px solid #ffea00;
-    box-shadow: inset -2px -2px 6px rgba(0,0,0,0.4), 0 0 15px rgba(245, 180, 0, 0.4);
-    text-shadow: 0 1px 1px rgba(255,255,255,0.3);
+    gap: 15px;
+    background: rgba(128, 128, 128, 0.1);
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
-/* ==========================================================================
-   ANIMATIONS
-   ========================================================================== */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(24px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.btn-maj {
+    background: rgba(128, 128, 128, 0.1);
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-maj:hover {
+    background: var(--text-muted);
+    color: white;
+    border-color: var(--text-muted);
+}
+
+.text-maj {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- BARRE DE NAVIGATION --- */
+.nav-menu {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 40px;
+    background: rgba(128, 128, 128, 0.1);
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.nav-menu a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.nav-menu a:hover {
+    background: rgba(128, 128, 128, 0.2);
+    color: var(--text-color);
+}
+
+.nav-menu a.active {
+    background: rgba(128, 128, 128, 0.2);
+    color: var(--text-color);
+    border: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.stats-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.stats-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 25px;
+    border-radius: 20px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: background 0.3s ease;
+}
+
+.stats-card h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+}
+
+.list-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.list-items li {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+    font-size: 1rem;
+}
+
+.hot  { color: var(--hot-color);  font-weight: 700; }
+.cold { color: var(--cold-color); font-weight: 700; }
+
+.graph-container {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    text-align: center;
+    margin-bottom: 50px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: background 0.3s ease;
+}
+
+.graph-container h2 {
+    text-align: left;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 25px 0;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    padding-bottom: 12px;
+}
+
+.graph-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
+
+.sim-input-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.sim-input {
+    width: 55px;
+    height: 45px;
+    background: var(--input-bg);
+    border: 2px solid var(--input-border);
+    border-radius: 10px;
+    color: var(--text-color);
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.sim-input.chance-in {
+    border-color: var(--chance-color);
+    background: radial-gradient(circle at 30% 30%, rgba(245,180,0,0.2) 0%, var(--input-bg) 80%);
+}
+
+.btn-simuler {
+    background: #00ff88;
+    color: #0b0c10;
+    border: none;
+    padding: 10px 25px;
+    font-weight: 700;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+.btn-simuler:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(0,255,136,0.4); }
+.btn-simuler:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.sim-result {
+    margin-top: 25px;
+    padding: 20px;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 15px;
+    text-align: center;
+}
+.sim-result h3 { margin: 0 0 10px 0; color: #00ff88; font-size: 1.4rem; }
+.sim-result .total { font-size: 2.4rem; font-weight: 800; color: #00ff88; text-shadow: 0 0 15px rgba(0,255,136,0.4); }
+.sim-result .details { margin-top: 15px; font-size: 0.9rem; color: var(--text-muted); }
+
+.sim-error {
+    color: #ff5e5e;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(255, 51, 68, 0.1);
+    border: 1px solid rgba(255, 51, 68, 0.3);
+    border-radius: 10px;
 }
