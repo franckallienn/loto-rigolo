@@ -349,5 +349,11 @@ def maj_donnees():
     return redirect(url_for('accueil'))
 
 
+# --- ROUTE POUR LA VÉRIFICATION GOOGLE ---
+@app.route('/googled650bff95eff2cfe.html')
+def google_verification():
+    return render_template('googled650bff95eff2cfe.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
