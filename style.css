@@ -1,0 +1,201 @@
+/* ==========================================================================
+   VARIABLES GLOBALES ET THÈME SOMBRE
+   ========================================================================== */
+:root {
+    /* Couleurs de fond */
+    --bg-main: #0b0c10;          /* Sombre très profond, presque noir */
+    --bg-panel: #1f2833;         /* Gris bleuté sombre pour les cartes */
+    --card-bg: rgba(31, 40, 51, 0.6); /* Fond de carte transparent pour effet verre */
+    
+    /* Couleurs de texte */
+    --text-color: #f5f7fa;       /* Blanc cassé lumineux */
+    --text-muted: #c5a059;       /* Doré discret pour les textes secondaires */
+    
+    /* Accents et Signaux */
+    --hot-color: #ff3344;        /* Rouge néon vibrant */
+    --cold-color: #33a6ff;       /* Bleu électrique */
+    --success-color: #00ff88;    /* Vert néon pour l'équilibre */
+    --chance-gradient: linear-gradient(135deg, #f5b400, #ffea00);
+}
+
+/* Base et réinitialisation */
+body {
+    background-color: var(--bg-main);
+    color: var(--text-color);
+    /* Testez la police 'Inter' ou 'Poppins' si installées, sinon 'Segoe UI' prend le relais */
+    font-family: 'Inter', 'Poppins', 'Segoe UI', system-ui, sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* ==========================================================================
+   SECTION GÉNÉRATEUR DE GRILLES
+   ========================================================================== */
+.generator-section {
+    text-align: center;
+    margin: 40px 0 60px 0;
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Le Bouton Moderne avec dégradé et lueur néon */
+.btn-generer {
+    display: inline-block;
+    padding: 16px 45px;
+    background: linear-gradient(90deg, var(--hot-color), var(--cold-color));
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 20px rgba(255, 51, 68, 0.2), 0 0 40px rgba(51, 166, 255, 0.2);
+}
+
+.btn-generer:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 0 30px rgba(255, 51, 68, 0.4), 0 0 60px rgba(51, 166, 255, 0.4);
+    letter-spacing: 1px;
+}
+
+.btn-generer:active {
+    transform: translateY(-1px) scale(0.99);
+}
+
+/* Grille de cartes */
+.grilles-container {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 45px;
+    flex-wrap: wrap;
+    animation: fadeInUp 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Cartes au look "Glassmorphism" (effet verre trempé) */
+.grille-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 30px 25px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    flex: 1;
+    min-width: 260px;
+    max-width: 340px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.grille-card:hover {
+    transform: translateY(-8px) scale(1.01);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 45px rgba(0,0,0,0.7);
+}
+
+/* Titres des cartes */
+.grille-card h3 {
+    text-align: center;
+    margin: 0 0 25px 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.grille-card.chaude h3 { 
+    color: var(--hot-color);
+    text-shadow: 0 0 10px rgba(255, 51, 68, 0.3);
+}
+.grille-card.froide h3 { 
+    color: var(--cold-color);
+    text-shadow: 0 0 10px rgba(51, 166, 255, 0.3);
+}
+.grille-card.equilibree h3 { 
+    color: var(--success-color);
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+/* Conteneur des boules */
+.grille-boules {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+/* Les Boules de Loto */
+.boule {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    font-weight: 800;
+    background: radial-gradient(circle at 30% 30%, #2a2a2a 0%, #111111 80%);
+    color: var(--text-color);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset -2px -2px 6px rgba(0,0,0,0.6), 0 4px 10px rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+}
+
+/* Bordures colorées de l'état de la boule au survol de la carte */
+.grille-card.chaude:hover .boule { border-color: var(--hot-color); box-shadow: 0 0 12px rgba(255, 51, 68, 0.2); }
+.grille-card.froide:hover .boule { border-color: var(--cold-color); box-shadow: 0 0 12px rgba(51, 166, 255, 0.2); }
+.grille-card.equilibree:hover .boule { border-color: var(--success-color); box-shadow: 0 0 12px rgba(0, 255, 136, 0.2); }
+
+/* Zone du numéro Chance */
+.grille-chance {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.grille-chance .label {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+}
+
+/* La Boule Chance Dorée */
+.boule-chance {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 1.15rem;
+    font-weight: 800;
+    background: radial-gradient(circle at 30% 30%, #ffe600 0%, #b88600 80%);
+    color: #0b0c10;
+    border: 2px solid #ffea00;
+    box-shadow: inset -2px -2px 6px rgba(0,0,0,0.4), 0 0 15px rgba(245, 180, 0, 0.4);
+    text-shadow: 0 1px 1px rgba(255,255,255,0.3);
+}
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

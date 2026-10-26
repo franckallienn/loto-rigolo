@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loto c'est Rigolo - Stats & Générateur</title>
+
+    <!-- IMPORTATION GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: rgba(31, 40, 51, 0.6);
+            --text-color: #f5f7fa;
+            --text-muted: #c5a059;
+            --hot-color: #ff3344;
+            --cold-color: #33a6ff;
+            --chance-color: #f5b400;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Poppins', 'Inter', 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ff3344, #f5b400);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .sync-container {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-maj {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-maj:hover {
+            background: var(--text-muted);
+            color: #0b0c10;
+            border-color: var(--text-muted);
+        }
+
+        .text-maj {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* --- BARRE DE NAVIGATION --- */
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .nav-menu a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stats-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .stats-card h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+
+        .list-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .list-items li {
+            display: flex;
+            justify-content: space-between;
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-size: 1rem;
+        }
+
+        .hot  { color: var(--hot-color);  font-weight: 700; }
+        .cold { color: var(--cold-color); font-weight: 700; }
+
+        .graph-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            margin-bottom: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .graph-container h2 {
+            text-align: left;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0 0 25px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 12px;
+        }
+
+        .graph-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+
+        .sim-input-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .sim-input {
+            width: 55px;
+            height: 45px;
+            background: #222;
+            border: 2px solid #444;
+            border-radius: 10px;
+            color: #fff;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .sim-input.chance-in {
+            border-color: var(--chance-color);
+            background: radial-gradient(circle at 30% 30%, #3a3200 0%, #111 80%);
+        }
+
+        .btn-simuler {
+            background: #00ff88;
+            color: #0b0c10;
+            border: none;
+            padding: 10px 25px;
+            font-weight: 700;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        .btn-simuler:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(0,255,136,0.4); }
+        .btn-simuler:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .sim-result {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 15px;
+            text-align: center;
+        }
+        .sim-result h3 { margin: 0 0 10px 0; color: #00ff88; font-size: 1.4rem; }
+        .sim-result .total { font-size: 2.4rem; font-weight: 800; color: #00ff88; text-shadow: 0 0 15px rgba(0,255,136,0.4); }
+        .sim-result .details { margin-top: 15px; font-size: 0.9rem; color: var(--text-muted); }
+
+        .sim-error {
+            color: #ff5e5e;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 51, 68, 0.1);
+            border: 1px solid rgba(255, 51, 68, 0.3);
+            border-radius: 10px;
+        }
+    </style>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>🎰 Loto c'est Rigolo 🎰</h1>
+            <p style="color: var(--text-muted); font-size: 1.1rem; margin: 0;">Statistiques de l'historique officiel et prédictions.</p>
+
+            <div class="sync-container">
+                <a href="/maj" class="btn-maj">🔄 Mettre à jour</a>
+                <span class="text-maj">Données du fichier : <strong style="color: var(--text-muted);">{{ date_maj }}</strong></span>
+            </div>
+
+            <!-- BARRE DE NAVIGATION -->
+            <nav class="nav-menu">
+                <a href="/" class="active">🎲 Accueil</a>
+                <a href="/analyses">📊 Analyses Avancées</a>
+            </nav>
+        </header>
+
+        <!-- SECTION GÉNÉRATEUR DE GRILLES -->
+        <section class="generator-section">
+            <a href="/?generer=1" class="btn-generer" style="display:inline-block; margin-bottom: 30px; text-decoration: none; background: linear-gradient(45deg, #ff3344, #33a6ff); color: white; padding: 12px 25px; border-radius: 25px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                {% if grilles %} 🔄 Régénérer mes grilles {% else %} 🎲 Générer mes 3 grilles {% endif %}
+            </a>
+
+            {% if grilles %}
+            <div class="grilles-container" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px;">
+                <!-- GRILLE CHAUDE -->
+                <div class="grille-card" style="background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,51,68,0.3); flex: 1; min-width: 250px;">
+                    <h3 style="color: #ff3344; text-align: center;">🔥 Grille Chaude</h3>
+                    <div style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
+                        {% for n in grilles.chaude.boules %}
+                            <div style="background: #111; border: 2px solid #333; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">{{ "%02d"|format(n) }}</div>
+                        {% endfor %}
+                    </div>
+                    <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">NUMÉRO CHANCE RÉEL</div>
+                    <div style="display: flex; justify-content: center; margin-top: 5px;">
+                        <div style="background: radial-gradient(circle at 30% 30%, #f5b400 0%, #b88600 80%); color: #111; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 0 10px rgba(245,180,0,0.5);">{{ "%02d"|format(grilles.chaude.chance) }}</div>
+                    </div>
+                </div>
+
+                <!-- GRILLE FROIDE -->
+                <div class="grille-card" style="background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid rgba(51,166,255,0.3); flex: 1; min-width: 250px;">
+                    <h3 style="color: #33a6ff; text-align: center;">❄ Grille Froide</h3>
+                    <div style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
+                        {% for n in grilles.froide.boules %}
+                            <div style="background: #111; border: 2px solid #333; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">{{ "%02d"|format(n) }}</div>
+                        {% endfor %}
+                    </div>
+                    <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">NUMÉRO CHANCE RÉEL</div>
+                    <div style="display: flex; justify-content: center; margin-top: 5px;">
+                        <div style="background: radial-gradient(circle at 30% 30%, #f5b400 0%, #b88600 80%); color: #111; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 0 10px rgba(245,180,0,0.5);">{{ "%02d"|format(grilles.froide.chance) }}</div>
+                    </div>
+                </div>
+
+                <!-- GRILLE ÉQUILIBRÉE -->
+                <div class="grille-card" style="background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid rgba(0,255,136,0.3); flex: 1; min-width: 250px;">
+                    <h3 style="color: #00ff88; text-align: center;">⚖ Grille Équilibrée</h3>
+                    <div style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
+                        {% for n in grilles.equilibree.boules %}
+                            <div style="background: #111; border: 2px solid #333; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">{{ "%02d"|format(n) }}</div>
+                        {% endfor %}
+                    </div>
+                    <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">NUMÉRO CHANCE RÉEL</div>
+                    <div style="display: flex; justify-content: center; margin-top: 5px;">
+                        <div style="background: radial-gradient(circle at 30% 30%, #f5b400 0%, #b88600 80%); color: #111; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 0 10px rgba(245,180,0,0.5);">{{ "%02d"|format(grilles.equilibree.chance) }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- MODULE DE SIMULATION DE GAINS HISTORIQUES -->
+        <section class="graph-container" style="margin-bottom:40px;">
+            <h2>🔮 Simulateur de fortune rétroactif</h2>
+            <p style="color:var(--text-muted); font-size:0.95rem; margin-top:-15px; margin-bottom:25px;">
+                Entrez vos numéros fétiches pour voir combien ils vous auraient rapporté historiquement !
+            </p>
+            <form method="POST" action="/#simulation">
+                <div class="sim-input-group">
+                    <input type="number" class="sim-input" name="b1" min="1" max="49" placeholder="N1" required>
+                    <input type="number" class="sim-input" name="b2" min="1" max="49" placeholder="N2" required>
+                    <input type="number" class="sim-input" name="b3" min="1" max="49" placeholder="N3" required>
+                    <input type="number" class="sim-input" name="b4" min="1" max="49" placeholder="N4" required>
+                    <input type="number" class="sim-input" name="b5" min="1" max="49" placeholder="N5" required>
+                    <span style="font-size:2rem; line-height:45px; color:var(--chance-color);">★</span>
+                    <input type="number" class="sim-input chance-in" name="ch" min="1" max="10" placeholder="CH" required>
+                </div>
+                <button type="submit" class="btn-simuler" id="btn-simuler">💸 Calculer mes gains virtuels</button>
+            </form>
+
+            <!-- Message d'erreur côté client (JS) -->
+            <div id="sim-error-client" class="sim-error" style="display:none;">
+                ⚠️ Les 5 boules doivent être différentes !
+            </div>
+
+            <!-- Message d'erreur côté serveur (Python) -->
+            {% if erreur_simulation %}
+            <div class="sim-error">
+                ⚠️ {{ erreur_simulation }}
+            </div>
+            {% endif %}
+
+            {% if simulation %}
+            <div class="sim-result" id="simulation">
+                <h3>Grille testée : {{ simulation.grille_testee.boules|join(' - ') }} ★ {{ simulation.grille_testee.chance }}</h3>
+                <p style="color:var(--text-muted); margin:5px 0 15px 0;">
+                    Sur {{ simulation.tirages_visites }} tirages analysés
+                </p>
+                <div class="total">{{ simulation.total }} €</div>
+                <div class="details">
+                    {% for rang, nb in simulation.details.items() %}
+                        {% if nb > 0 %}
+                            <span style="margin:0 8px;">Rang {{ rang }} : <strong style="color:#00ff88;">{{ nb }}×</strong></span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- SECTION STATISTIQUES -->
+        <section class="stats-section">
+
+            <!-- 🔥 Top 10 Chauds -->
+            <div class="stats-card">
+                <h2>🔥 Top 10 (Chauds)</h2>
+                <ul class="list-items">
+                    {% for numero, freq in top_10.items() %}
+                    <li>
+                        <span>Numéro <span class="hot">{{ "%02d"|format(numero) }}</span></span>
+                        <span>{{ freq }} sorties</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- ❄️ Bottom 10 Froids -->
+            <div class="stats-card">
+                <h2>❄️ Bottom 10 (Froids)</h2>
+                <ul class="list-items">
+                    {% for numero, freq in bottom_10.items() %}
+                    <li>
+                        <span>Numéro <span class="cold">{{ "%02d"|format(numero) }}</span></span>
+                        <span>{{ freq }} sorties</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- 👯 Top Paires -->
+            <div class="stats-card">
+                <h2>👯 Top 10 Paires</h2>
+                <ul class="list-items">
+                    {% for paire, freq in top_paires %}
+                    <li>
+                        <span>{{ "%02d"|format(paire[0]) }} - {{ "%02d"|format(paire[1]) }}</span>
+                        <span>{{ freq }} fois</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- ⭐ Numéros Chance -->
+            <div class="stats-card">
+                <h2>⭐ Numéros Chance</h2>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin:0 0 10px 0;">Top 3 :</p>
+                <ul class="list-items">
+                    {% for numero, freq in top_chance.items() %}
+                        {% if loop.index <= 3 %}
+                        <li>
+                            <span>N° <span style="color:var(--chance-color); font-weight:700;">{{ "%02d"|format(numero) }}</span></span>
+                            <span>{{ freq }} sorties</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin:15px 0 10px 0;">Bottom 3 :</p>
+                <ul class="list-items">
+                    {% for numero, freq in bottom_chance.items() %}
+                        {% if loop.index <= 3 %}
+                        <li>
+                            <span>N° <span style="color:var(--cold-color); font-weight:700;">{{ "%02d"|format(numero) }}</span></span>
+                            <span>{{ freq }} sorties</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+        </section>
+
+        <!-- SECTION GRAPHIQUE -->
+        {% if graphique %}
+        <div class="graph-container">
+            <h2>📈 Visualisation des fréquences</h2>
+            <img src="data:image/png;base64,{{ graphique }}" alt="Graphique des tirages Loto">
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- SCRIPT DE VALIDATION CÔTÉ CLIENT AMÉLIORÉ -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputsBoules = document.querySelectorAll('.sim-input:not(.chance-in)');
+        const inputChance = document.querySelector('.sim-input.chance-in');
+        const errorDiv = document.getElementById('sim-error-client');
+        const btn = document.getElementById('btn-simuler');
+
+        if (!inputsBoules.length || !inputChance || !btn) return;
+
+        function validateForm() {
+            const boulesValues = Array.from(inputsBoules).map(i => parseInt(i.value)).filter(v => !isNaN(v));
+            const chanceValue = parseInt(inputChance.value);
+
+            let errorMessage = "";
+
+            if (boulesValues.length < 5 || isNaN(chanceValue)) {
+                errorMessage = "Veuillez remplir tous les champs.";
+            }
+            else if (boulesValues.some(v => v < 1 || v > 49)) {
+                errorMessage = "Les 5 boules doivent être comprises entre 1 et 49.";
+            }
+            else if (chanceValue < 1 || chanceValue > 10) {
+                errorMessage = "Le numéro Chance doit être compris entre 1 et 10.";
+            }
+            else if (new Set(boulesValues).size !== 5) {
+                errorMessage = "Les 5 boules doivent être toutes différentes !";
+            }
+
+            if (errorMessage) {
+                errorDiv.textContent = "⚠️ " + errorMessage;
+                errorDiv.style.display = 'block';
+                btn.disabled = true;
+            } else {
+                errorDiv.style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        inputsBoules.forEach(input => input.addEventListener('input', validateForm));
+        inputChance.addEventListener('input', validateForm);
+    });
+    </script>
+
+</body>
+</html>
