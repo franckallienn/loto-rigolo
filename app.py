@@ -11,7 +11,8 @@ import random
 import os
 import requests
 import zipfile
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 app = Flask(__name__)
 
@@ -26,6 +27,19 @@ FICHIER_COMPTEUR = os.path.join(DOSSIER_APP, "compteur.txt")
 # URL officielle de la FDJ
 URL_FDJ = "https://media.fdj.fr/generated/game/loto/nouveau_loto.zip"
 
+# Fuseau horaire de Paris (gère automatiquement l'heure d'été / d'hiver)
+FUSEAU_PARIS = ZoneInfo("Europe/Paris")
+
+
+def formater_date_maj():
+    """Renvoie la date de dernière modif du CSV, convertie en heure française."""
+    if not os.path.exists(NOM_FICHIER_LOCAL):
+        return "Inconnue"
+    timestamp = os.path.getmtime(NOM_FICHIER_LOCAL)
+    dt_utc = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+    dt_paris = dt_utc.astimezone(FUSEAU_PARIS)
+    return dt_paris.strftime('%d/%m/%Y à %H:%M')
+
 
 def incrementer_compteur():
     """Lit le compteur, l'incrémente et le sauvegarde."""
@@ -35,12 +49,12 @@ def incrementer_compteur():
                 visites = int(f.read().strip())
         else:
             visites = 0
-            
+
         visites += 1
-        
+
         with open(FICHIER_COMPTEUR, "w") as f:
             f.write(str(visites))
-            
+
         return visites
     except Exception as e:
         print(f"Erreur compteur : {e}")
@@ -149,16 +163,16 @@ def calculer_ecarts():
         df = pd.read_csv(NOM_FICHIER_LOCAL, delimiter=';', header=0, encoding='iso-8859-1')
         colonnes_boules = ['boule_1', 'boule_2', 'boule_3', 'boule_4', 'boule_5']
         df_boules = df[colonnes_boules].apply(pd.to_numeric, errors='coerce').dropna()
-        
+
         total_tirages = len(df_boules)
         ecarts = {i: total_tirages for i in range(1, 50)}
-        
+
         for i, row in enumerate(df_boules.values[::-1]):
             for num in row:
                 num = int(num)
                 if ecarts[num] == total_tirages:
                     ecarts[num] = i
-                    
+
         return ecarts
     except Exception as e:
         print(f"Erreur calcul écarts : {e}")
@@ -171,13 +185,13 @@ def calculer_trios():
         df = pd.read_csv(NOM_FICHIER_LOCAL, delimiter=';', header=0, encoding='iso-8859-1')
         colonnes_boules = ['boule_1', 'boule_2', 'boule_3', 'boule_4', 'boule_5']
         df_boules = df[colonnes_boules].apply(pd.to_numeric, errors='coerce').dropna()
-        
+
         compteur_trios = Counter()
         for _, row in df_boules.iterrows():
             boules_triees = sorted(row.tolist())
             for trio in combinations(boules_triees, 3):
                 compteur_trios[trio] += 1
-                
+
         return compteur_trios.most_common(10)
     except Exception as e:
         print(f"Erreur calcul trios : {e}")
@@ -269,10 +283,8 @@ def accueil():
 
     top_10, bottom_10, top_paires, graphique, compteur_boules, top_chance, bottom_chance = analyser_donnees()
 
-    date_maj = "Inconnue"
-    if os.path.exists(NOM_FICHIER_LOCAL):
-        timestamp = os.path.getmtime(NOM_FICHIER_LOCAL)
-        date_maj = datetime.fromtimestamp(timestamp).strftime('%d/%m/%Y à %H:%M')
+    # Date de mise à jour convertie en heure française
+    date_maj = formater_date_maj()
 
     grilles = None
     if request.args.get('generer') == '1' and compteur_boules is not None:
@@ -316,21 +328,18 @@ def accueil():
                            bottom_chance=bottom_chance,
                            simulation=resultat_simulation,
                            erreur_simulation=erreur_simulation,
-                           visites=visites) # <--- Ajout de la variable visites
+                           visites=visites)
 
 
 @app.route('/analyses')
 def analyses():
-    date_maj = "Inconnue"
-    if os.path.exists(NOM_FICHIER_LOCAL):
-        timestamp = os.path.getmtime(NOM_FICHIER_LOCAL)
-        date_maj = datetime.fromtimestamp(timestamp).strftime('%d/%m/%Y à %H:%M')
-        
+    date_maj = formater_date_maj()
+
     ecarts = calculer_ecarts()
     ecarts_tries = dict(sorted(ecarts.items()))
-    
+
     top_trios = calculer_trios()
-    
+
     return render_template('analyses.html', date_maj=date_maj, ecarts=ecarts_tries, top_trios=top_trios)
 
 
