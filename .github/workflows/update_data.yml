@@ -1,0 +1,37 @@
+name: Mise à jour quotidienne du CSV
+
+on:
+  schedule:
+    # Le robot se lance tous les jours à 21h00 UTC (soit 22h00 en France l'hiver, 23h00 l'été)
+    - cron: '0 21 * * *'
+  workflow_dispatch: # Permet de lancer le robot manuellement depuis l'onglet "Actions"
+
+jobs:
+  update-csv:
+    runs-on: ubuntu-latest
+    permissions:
+      # Autorise le robot à modifier le contenu du dépôt (pour le commit)
+      contents: write
+
+    steps:
+      - name: Récupérer le code du dépôt
+        uses: actions/checkout@v4
+
+      - name: Configurer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Installer les dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Exécuter le script de mise à jour
+        run: python update_csv.py
+
+      - name: Commiter et pousser les modifications
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "🤖 Mise à jour automatique des données du Loto"
+          file_pattern: loto_historique.csv
