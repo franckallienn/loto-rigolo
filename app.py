@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
@@ -32,7 +32,6 @@ FUSEAU_PARIS = ZoneInfo("Europe/Paris")
 
 
 def formater_date_maj():
-    """Renvoie la date de dernière modif du CSV, convertie en heure française."""
     if not os.path.exists(NOM_FICHIER_LOCAL):
         return "Inconnue"
     timestamp = os.path.getmtime(NOM_FICHIER_LOCAL)
@@ -42,7 +41,6 @@ def formater_date_maj():
 
 
 def incrementer_compteur():
-    """Lit le compteur, l'incrémente et le sauvegarde."""
     try:
         if os.path.exists(FICHIER_COMPTEUR):
             with open(FICHIER_COMPTEUR, "r") as f:
@@ -62,7 +60,6 @@ def incrementer_compteur():
 
 
 def telecharger_donnees_fdj():
-    """Télécharge le ZIP de la FDJ et extrait le fichier CSV en local."""
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         response = requests.get(URL_FDJ, headers=headers, timeout=30)
@@ -82,7 +79,6 @@ def telecharger_donnees_fdj():
 
 
 def analyser_donnees():
-    """Lit le CSV, calcule les stats et génère le graphique."""
     try:
         df = pd.read_csv(NOM_FICHIER_LOCAL, delimiter=';', header=0, encoding='iso-8859-1')
 
@@ -90,7 +86,6 @@ def analyser_donnees():
         df_boules = df[colonnes_boules].apply(pd.to_numeric, errors='coerce').dropna()
         df_chance = df['numero_chance'].apply(pd.to_numeric, errors='coerce').dropna()
 
-        # --- STATS PAR BOULE ---
         numeros = df_boules.values.flatten()
         compteur_boules = pd.Series(numeros).value_counts()
         compteur_boules = pd.Series(index=range(1, 50), data=compteur_boules.reindex(range(1, 50), fill_value=0))
@@ -98,13 +93,11 @@ def analyser_donnees():
         top_10 = compteur_boules.sort_values(ascending=False).head(10).to_dict()
         bottom_10 = compteur_boules.sort_values().head(10).to_dict()
 
-        # --- STATS NUMÉROS CHANCE ---
         compteur_chance = df_chance.value_counts()
         compteur_chance = pd.Series(index=range(1, 11), data=compteur_chance.reindex(range(1, 11), fill_value=0))
         top_chance = compteur_chance.sort_values(ascending=False).head(10).to_dict()
         bottom_chance = compteur_chance.sort_values().head(10).to_dict()
 
-        # --- DUOS ---
         compteur_paires = Counter()
         for _, row in df_boules.iterrows():
             boules_triees = sorted(row.tolist())
@@ -112,7 +105,6 @@ def analyser_donnees():
                 compteur_paires[paire] += 1
         top_paires = compteur_paires.most_common(10)
 
-        # --- GRAPHIQUE (Fond transparent) ---
         COULEUR_TEXTE = '#f0f0f0'
         COULEUR_GRILLE = '#444444'
         COULEUR_BARRE = '#5eb5ff'
@@ -158,7 +150,6 @@ def analyser_donnees():
 
 
 def calculer_ecarts():
-    """Calcule le nombre de tirages depuis la dernière sortie de chaque numéro."""
     try:
         df = pd.read_csv(NOM_FICHIER_LOCAL, delimiter=';', header=0, encoding='iso-8859-1')
         colonnes_boules = ['boule_1', 'boule_2', 'boule_3', 'boule_4', 'boule_5']
@@ -180,7 +171,6 @@ def calculer_ecarts():
 
 
 def calculer_trios():
-    """Calcule le Top 10 des combinaisons de 3 numéros sortis ensemble."""
     try:
         df = pd.read_csv(NOM_FICHIER_LOCAL, delimiter=';', header=0, encoding='iso-8859-1')
         colonnes_boules = ['boule_1', 'boule_2', 'boule_3', 'boule_4', 'boule_5']
@@ -199,7 +189,6 @@ def calculer_trios():
 
 
 def generer_grilles(compteur_boules, top_chance, bottom_chance):
-    """Génère 3 grilles basées intelligemment sur les statistiques."""
     hot_pool = list(compteur_boules.sort_values(ascending=False).head(15).index)
     cold_pool = list(compteur_boules.sort_values().head(15).index)
 
@@ -226,7 +215,6 @@ def generer_grilles(compteur_boules, top_chance, bottom_chance):
 
 
 def simuler_gains_historiques(mes_boules, ma_chance):
-    """Calcule les gains cumulés d'une grille sur tout l'historique."""
     try:
         df = pd.read_csv(NOM_FICHIER_LOCAL, delimiter=';', header=0, encoding='iso-8859-1')
         total_gains = 0
@@ -278,12 +266,8 @@ def simuler_gains_historiques(mes_boules, ma_chance):
 
 @app.route('/', methods=['GET', 'POST'])
 def accueil():
-    # Appel du compteur
     visites = incrementer_compteur()
-
     top_10, bottom_10, top_paires, graphique, compteur_boules, top_chance, bottom_chance = analyser_donnees()
-
-    # Date de mise à jour convertie en heure française
     date_maj = formater_date_maj()
 
     grilles = None
@@ -334,12 +318,9 @@ def accueil():
 @app.route('/analyses')
 def analyses():
     date_maj = formater_date_maj()
-
     ecarts = calculer_ecarts()
     ecarts_tries = dict(sorted(ecarts.items()))
-
     top_trios = calculer_trios()
-
     return render_template('analyses.html', date_maj=date_maj, ecarts=ecarts_tries, top_trios=top_trios)
 
 
@@ -348,8 +329,16 @@ def maj_donnees():
     telecharger_donnees_fdj()
     return redirect(url_for('accueil'))
 
+# --- NOUVELLES ROUTES POUR LA PWA ---
+@app.route('/manifest.json')
+def serve_manifest():
+    return send_from_directory(DOSSIER_APP, 'manifest.json', mimetype='application/manifest+json')
 
-# --- ROUTE POUR LA VÉRIFICATION GOOGLE ---
+@app.route('/sw.js')
+def serve_sw():
+    return send_from_directory(DOSSIER_APP, 'sw.js', mimetype='application/javascript')
+# ------------------------------------
+
 @app.route('/googled650bff95eff2cfe.html')
 def google_verification():
     return render_template('googled650bff95eff2cfe.html')
