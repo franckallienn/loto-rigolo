@@ -9,10 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- On charge le CSS depuis le dossier static -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     
-    <!-- Un petit script pour charger le thème AVANT l'affichage (évite le flash blanc) -->
+    <!-- Script pour charger le thème AVANT l'affichage -->
     <script>
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'light') {
@@ -25,10 +24,10 @@
     <div class="container">
 
         <header>
-            <div style="display: flex; justify-content: space-between; align-items: center; max-width: 400px; margin: 0 auto 10px auto;">
-                <div style="width: 40px;"></div> <!-- Espace vide pour centrer le titre -->
+            <!-- HEADER CORRIGÉ : bouton toujours visible et centré -->
+            <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px;">
                 <h1 style="margin: 0;">🎰 Loto c'est Rigolo 🎰</h1>
-                <button id="theme-toggle" style="background: none; border: 2px solid var(--text-muted); border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 1.2rem; color: var(--text-color); display: flex; justify-content: center; align-items: center;">
+                <button id="theme-toggle" title="Changer de thème" style="background: none; border: 2px solid var(--text-muted); border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-size: 1.3rem; color: var(--text-color); display: flex; justify-content: center; align-items: center; flex-shrink: 0; transition: all 0.2s ease;">
                     🌙
                 </button>
             </div>
@@ -39,14 +38,12 @@
                 <span class="text-maj">Données du fichier : <strong style="color: var(--text-muted);">{{ date_maj }}</strong></span>
             </div>
 
-            <!-- BARRE DE NAVIGATION -->
             <nav class="nav-menu">
                 <a href="/" class="active">🎲 Accueil</a>
                 <a href="/analyses">📊 Analyses Avancées</a>
             </nav>
         </header>
 
-        <!-- SECTION GÉNÉRATEUR DE GRILLES -->
         <section class="generator-section">
             <a href="/?generer=1" class="btn-generer" style="display:inline-block; margin-bottom: 30px; text-decoration: none; background: linear-gradient(45deg, #ff3344, #33a6ff); color: white; padding: 12px 25px; border-radius: 25px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
                 {% if grilles %} 🔄 Régénérer mes grilles {% else %} 🎲 Générer mes 3 grilles {% endif %}
@@ -54,7 +51,6 @@
 
             {% if grilles %}
             <div class="grilles-container" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px;">
-                <!-- GRILLE CHAUDE -->
                 <div class="grille-card" style="background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,51,68,0.3); flex: 1; min-width: 250px;">
                     <h3 style="color: #ff3344; text-align: center;">🔥 Grille Chaude</h3>
                     <div style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
@@ -68,7 +64,6 @@
                     </div>
                 </div>
 
-                <!-- GRILLE FROIDE -->
                 <div class="grille-card" style="background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid rgba(51,166,255,0.3); flex: 1; min-width: 250px;">
                     <h3 style="color: #33a6ff; text-align: center;">❄ Grille Froide</h3>
                     <div style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
@@ -82,7 +77,6 @@
                     </div>
                 </div>
 
-                <!-- GRILLE ÉQUILIBRÉE -->
                 <div class="grille-card" style="background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid rgba(0,255,136,0.3); flex: 1; min-width: 250px;">
                     <h3 style="color: #00ff88; text-align: center;">⚖ Grille Équilibrée</h3>
                     <div style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
@@ -99,7 +93,6 @@
             {% endif %}
         </section>
 
-        <!-- MODULE DE SIMULATION DE GAINS HISTORIQUES -->
         <section class="graph-container" style="margin-bottom:40px;">
             <h2>🔮 Simulateur de fortune rétroactif</h2>
             <p style="color:var(--text-muted); font-size:0.95rem; margin-top:-15px; margin-bottom:25px;">
@@ -146,7 +139,6 @@
             {% endif %}
         </section>
 
-        <!-- SECTION STATISTIQUES -->
         <section class="stats-section">
             <div class="stats-card">
                 <h2>🔥 Top 10 (Chauds)</h2>
@@ -280,16 +272,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const themeToggle = document.getElementById('theme-toggle');
+            if (!themeToggle) return;
+
             const currentTheme = localStorage.getItem('theme') || 'dark';
+            themeToggle.textContent = (currentTheme === 'light') ? '☀️' : '🌙';
 
-            // Mise à jour de l'icône au chargement
-            if (currentTheme === 'light') {
-                themeToggle.textContent = '☀️';
-            } else {
-                themeToggle.textContent = '🌙';
-            }
-
-            // Clic sur le bouton
             themeToggle.addEventListener('click', function() {
                 if (document.documentElement.classList.contains('light-mode')) {
                     document.documentElement.classList.remove('light-mode');
