@@ -508,5 +508,24 @@
     });
     </script>
 
+    <!-- SCRIPT POUR LES CONFETTIS 🎊 -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // On regarde si un résultat de simulation est affiché et si le gain est supérieur à 1000€
+            {% if simulation and simulation.total > 1000 %}
+                // Petit délai pour que la page finisse de s'afficher
+                setTimeout(function() {
+                    confetti({
+                        particleCount: 250,
+                        spread: 100,
+                        origin: { y: 0.6 },
+                        colors: ['#00ff88', '#f5b400', '#ff3344', '#5eb5ff', '#ffffff']
+                    });
+                }, 500);
+            {% endif %}
+        });
+    </script>
+
 </body>
 </html>
