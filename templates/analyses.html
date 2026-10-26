@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loto c'est Rigolo - Analyses Avancées</title>
 
-    <!-- LA LIGNE MAGIQUE POUR LE FAVICON (Emoji 🎰) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎰</text></svg>">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -375,6 +374,75 @@
                     themeToggle.textContent = '☀️';
                 }
             });
+        });
+    </script>
+
+    <!-- BIBLIOTHÈQUE CONFETTIS (Nécessaire pour le Konami Code) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <!-- SCRIPT KONAMI CODE (EASTER EGG) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+            let konamiIndex = 0;
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === konamiCode[konamiIndex]) {
+                    konamiIndex++;
+                    if (konamiIndex === konamiCode.length) {
+                        triggerKonamiEasterEgg();
+                        konamiIndex = 0;
+                    }
+                } else {
+                    konamiIndex = 0;
+                }
+            });
+
+            function triggerKonamiEasterEgg() {
+                const duration = 5 * 1000;
+                const animationEnd = Date.now() + duration;
+                const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+
+                function randomInRange(min, max) {
+                    return Math.random() * (max - min) + min;
+                }
+
+                const interval = setInterval(function() {
+                    const timeLeft = animationEnd - Date.now();
+                    if (timeLeft <= 0) {
+                        return clearInterval(interval);
+                    }
+                    const particleCount = 50 * (timeLeft / duration);
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+                }, 250);
+
+                const overlay = document.createElement('div');
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0'; overlay.style.left = '0';
+                overlay.style.width = '100vw'; overlay.style.height = '100vh';
+                overlay.style.backgroundColor = 'rgba(0,0,0,0.85)';
+                overlay.style.color = '#00ff88';
+                overlay.style.display = 'flex';
+                overlay.style.flexDirection = 'column';
+                overlay.style.justifyContent = 'center';
+                overlay.style.alignItems = 'center';
+                overlay.style.zIndex = '9999';
+                overlay.style.fontFamily = "'Poppins', sans-serif";
+                overlay.style.textAlign = 'center';
+                overlay.style.padding = '20px';
+
+                overlay.innerHTML = `
+                    <h1 style="font-size: 3.5rem; margin: 0; text-shadow: 0 0 20px #00ff88;">🎰 JACKPOT ! 🎰</h1>
+                    <p style="font-size: 1.5rem; color: #f5b400; margin-top: 10px;">Vous avez trouvé le code secret de LULU !</p>
+                    <p style="font-size: 1rem; color: #fff; margin-top: 10px;">(Mais ça ne vous fera pas gagner au Loto...)</p>
+                    <button onclick="this.parentElement.remove()" style="margin-top: 30px; padding: 12px 30px; font-size: 1.2rem; border-radius: 10px; border: none; cursor: pointer; background: #ff3344; color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(255,51,68,0.4); transition: transform 0.2s;">
+                        Fermer
+                    </button>
+                `;
+
+                document.body.appendChild(overlay);
+            }
         });
     </script>
 
