@@ -15,12 +15,36 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# --- LA LIGNE MAGIQUE pour le chemin absolu ---
+# --- LA LIGNE MAGIQUE POUR RENDER (Cache Matplotlib) ---
+os.environ['MPLCONFIGDIR'] = '/tmp'
+
+# --- Chemins absolus ---
 DOSSIER_APP = os.path.dirname(os.path.abspath(__file__))
 NOM_FICHIER_LOCAL = os.path.join(DOSSIER_APP, "loto_historique.csv")
+FICHIER_COMPTEUR = os.path.join(DOSSIER_APP, "compteur.txt")
 
-# URL officielle de la FDJ pour l'historique complet (le fichier ZIP)
+# URL officielle de la FDJ
 URL_FDJ = "https://media.fdj.fr/generated/game/loto/nouveau_loto.zip"
+
+
+def incrementer_compteur():
+    """Lit le compteur, l'incrémente et le sauvegarde."""
+    try:
+        if os.path.exists(FICHIER_COMPTEUR):
+            with open(FICHIER_COMPTEUR, "r") as f:
+                visites = int(f.read().strip())
+        else:
+            visites = 0
+            
+        visites += 1
+        
+        with open(FICHIER_COMPTEUR, "w") as f:
+            f.write(str(visites))
+            
+        return visites
+    except Exception as e:
+        print(f"Erreur compteur : {e}")
+        return 0
 
 
 def telecharger_donnees_fdj():
@@ -44,7 +68,7 @@ def telecharger_donnees_fdj():
 
 
 def analyser_donnees():
-    """Lit le CSV, calcule les stats (boules + duos + chances) et génère le graphique."""
+    """Lit le CSV, calcule les stats et génère le graphique."""
     try:
         df = pd.read_csv(NOM_FICHIER_LOCAL, delimiter=';', header=0, encoding='iso-8859-1')
 
@@ -240,6 +264,9 @@ def simuler_gains_historiques(mes_boules, ma_chance):
 
 @app.route('/', methods=['GET', 'POST'])
 def accueil():
+    # Appel du compteur
+    visites = incrementer_compteur()
+
     top_10, bottom_10, top_paires, graphique, compteur_boules, top_chance, bottom_chance = analyser_donnees()
 
     date_maj = "Inconnue"
@@ -288,7 +315,8 @@ def accueil():
                            top_chance=top_chance,
                            bottom_chance=bottom_chance,
                            simulation=resultat_simulation,
-                           erreur_simulation=erreur_simulation)
+                           erreur_simulation=erreur_simulation,
+                           visites=visites) # <--- Ajout de la variable visites
 
 
 @app.route('/analyses')
@@ -301,7 +329,7 @@ def analyses():
     ecarts = calculer_ecarts()
     ecarts_tries = dict(sorted(ecarts.items()))
     
-    top_trios = calculer_trios() # <--- Nouvel appel ici
+    top_trios = calculer_trios()
     
     return render_template('analyses.html', date_maj=date_maj, ecarts=ecarts_tries, top_trios=top_trios)
 
