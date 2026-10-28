@@ -13,8 +13,12 @@ import requests
 import zipfile
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
+import time
 
 app = Flask(__name__)
+
+# --- Variables globales de sécurité ---
+DERNIERE_MAJ = 0  # Pour protéger la route /maj contre le spam
 
 # --- LA LIGNE MAGIQUE POUR RENDER (Cache Matplotlib) ---
 os.environ['MPLCONFIGDIR'] = '/tmp'
@@ -29,6 +33,17 @@ URL_FDJ = "https://media.fdj.fr/generated/game/loto/nouveau_loto.zip"
 
 # Fuseau horaire de Paris (gère automatiquement l'heure d'été / d'hiver)
 FUSEAU_PARIS = ZoneInfo("Europe/Paris")
+
+
+# --- SÉCURITÉ : Ajout des headers HTTP de protection ---
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    # CSP : autorise les images en base64 (data:) pour tes graphiques Matplotlib
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    return response
 
 
 def formater_date_maj():
@@ -326,7 +341,17 @@ def analyses():
 
 @app.route('/maj')
 def maj_donnees():
-    telecharger_donnees_fdj()
+    global DERNIERE_MAJ
+    maintenant = time.time()
+    
+    # Si la dernière mise à jour date de moins de 600 secondes (10 minutes)
+    if maintenant - DERNIERE_MAJ < 600:
+        temps_restant = int(600 - (maintenant - DERNIERE_MAJ))
+        return f"Mise à jour déjà effectuée récemment. Réessayez dans {temps_restant} secondes.", 429
+        
+    if telecharger_donnees_fdj():
+        DERNIERE_MAJ = maintenant
+        
     return redirect(url_for('accueil'))
 
 # --- NOUVELLES ROUTES POUR LA PWA ---
@@ -345,4 +370,4 @@ def google_verification():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
